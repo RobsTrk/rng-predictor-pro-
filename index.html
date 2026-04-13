@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNG Predictor Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <h1>RNG PREDICTOR <span>PRO</span></h1>
+            </div>
+            <div class="header-actions">
+                <button id="btn-settings" class="icon-btn">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Main Content (Two Panels) -->
+        <main class="panels">
+            
+            <!-- Panel 1: Input & Prediction -->
+            <section class="panel panel-left">
+                <div class="card phase-card">
+                    <div class="phase-indicator">
+                        <div class="traffic-light">
+                            <div class="light red" id="light-red"></div>
+                            <div class="light yellow" id="light-yellow"></div>
+                            <div class="light green" id="light-green"></div>
+                        </div>
+                        <div class="phase-text" id="phase-text">OBSERVING</div>
+                    </div>
+                </div>
+
+                <div class="card input-card">
+                    <h2>ENTER RESULT</h2>
+                    <div class="input-buttons">
+                        <button class="btn btn-small" data-val="S">SMALL (0-4)</button>
+                        <button class="btn btn-big" data-val="B">BIG (5-9)</button>
+                    </div>
+                    <div class="history-container">
+                        <div class="history-chips" id="history-chips">
+                            <!-- Chips will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card prediction-card">
+                    <h2>AI PREDICTION</h2>
+                    <div class="prediction-content">
+                        <div class="prediction-main" id="prediction-main">WAIT</div>
+                        <div class="confidence-ring">
+                            <svg viewBox="0 0 36 36" class="circular-chart">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" id="confidence-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="confidence-text" id="confidence-text">0%</div>
+                        </div>
+                        <div class="prediction-reason" id="prediction-reason">Needs 5 rounds of data.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 2: Stats & Tracker -->
+            <section class="panel panel-right">
+                <div class="card tracker-card">
+                    <div class="tracker-header">
+                        <h2>SESSION TRACKER</h2>
+                        <div class="timer" id="session-timer">00:00</div>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <label>Balance:</label>
+                        <select id="balance-select">
+                            <option value="100">₹100</option>
+                            <option value="200">₹200</option>
+                            <option value="300">₹300</option>
+                            <option value="500">₹500</option>
+                            <option value="1000" selected>₹1000</option>
+                            <option value="1500">₹1500</option>
+                            <option value="2000">₹2000</option>
+                            <option value="2500">₹2500</option>
+                            <option value="3000">₹3000</option>
+                        </select>
+                    </div>
+
+                    <div class="pnl-container">
+                        <div class="pnl-header">
+                            <span>P&L</span>
+                            <span id="pnl-value" class="neutral">₹0</span>
+                        </div>
+                        <div class="pnl-bar">
+                            <div class="pnl-fill" id="pnl-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="martingale-levels">
+                        <h3>MARTINGALE LEVEL</h3>
+                        <div class="level-bars" id="level-bars">
+                            <!-- 8 levels injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card analysis-card">
+                    <h2>PATTERN ANALYSIS</h2>
+                    <div class="analysis-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat-switch">0%</div>
+                            <div class="stat-label">Switch Prob</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat-type">-</div>
+                            <div class="stat-label">Pattern</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat-streak">0</div>
+                            <div class="stat-label">Max Streak</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card alert-card">
+                    <div class="alert-box" id="system-alert">
+                        <strong>SYSTEM:</strong> Please enter 5 rounds to initialize pattern analysis.
+                    </div>
+                </div>
+
+                <div class="action-bar" id="action-bar">
+                    <div class="action-text">WAITING</div>
+                    <div class="action-badge">L1</div>
+                </div>
+
+                <div class="controls-card">
+                    <button id="btn-reset" class="btn-outline">Reset Session</button>
+                    <button id="btn-undo" class="btn-outline">Undo Last</button>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- API Key Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <h2>Settings</h2>
+            <div class="form-group">
+                <label for="api-key">Gemini 2.0 Flash API Key</label>
+                <input type="password" id="api-key" placeholder="Enter API Key">
+                <p class="help-text">Your key is stored locally in your browser.</p>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-close-settings" class="btn btn-outline">Close</button>
+                <button id="btn-save-settings" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="tracker.js"></script>
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
