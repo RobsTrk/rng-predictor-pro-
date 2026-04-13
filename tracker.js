@@ -25,8 +25,10 @@ class RiskTracker {
         this.sessionStartTime = Date.now();
         this.consecutiveLosses = 0;
         this.consecutiveWins = 0;
-        this.recentLosses = 0; // for 2 consecutive losses rule
-        this.stateHistory = []; // For undo
+        this.recentLosses = 0;
+        this.stateHistory = [];
+        this.sessionData = []; // Phase 3: Timestamps
+        this.pnlHistory = [0]; // Phase 3: Chart
         this.saveState();
     }
 
@@ -57,7 +59,9 @@ class RiskTracker {
             pnl: this.pnl,
             consecutiveLosses: this.consecutiveLosses,
             consecutiveWins: this.consecutiveWins,
-            recentLosses: this.recentLosses
+            recentLosses: this.recentLosses,
+            sessionData: [...this.sessionData],
+            pnlHistory: [...this.pnlHistory]
         };
     }
 
@@ -71,6 +75,8 @@ class RiskTracker {
         this.consecutiveLosses = snap.consecutiveLosses;
         this.consecutiveWins = snap.consecutiveWins;
         this.recentLosses = snap.recentLosses;
+        if (snap.sessionData) this.sessionData = [...snap.sessionData];
+        if (snap.pnlHistory) this.pnlHistory = [...snap.pnlHistory];
         this.saveState();
     }
 
@@ -122,7 +128,23 @@ class RiskTracker {
         this.betHistory.push(betRecord);
         if (this.betHistory.length > 30) this.betHistory.shift();
         
+        this.pnlHistory.push(this.pnl);
+        
+        this.sessionData.push({
+            timestamp: new Date().toISOString(),
+            result: actualResult,
+            predicted: predictedTarget,
+            level: this.currentLevel,
+            betAmount: betRecord.amount,
+            won: betRecord.won,
+            pnl: this.pnl
+        });
+
         this.saveState();
+    }
+
+    exportData() {
+        return JSON.stringify(this.sessionData, null, 2);
     }
 
     getPatternAnalysis() {
@@ -174,7 +196,9 @@ class RiskTracker {
             pnl: this.pnl,
             currentLevel: this.currentLevel,
             history: this.history,
-            sessionStartTime: this.sessionStartTime
+            sessionStartTime: this.sessionStartTime,
+            sessionData: this.sessionData,
+            pnlHistory: this.pnlHistory
         };
         localStorage.setItem('rng_pro_tracker_state', JSON.stringify(data));
     }
@@ -189,6 +213,8 @@ class RiskTracker {
                 this.currentLevel = data.currentLevel || 1;
                 this.history = data.history || [];
                 this.sessionStartTime = data.sessionStartTime || Date.now();
+                this.sessionData = data.sessionData || [];
+                this.pnlHistory = data.pnlHistory || [0];
             } catch(e) {
                 console.error("Error loading state", e);
             }

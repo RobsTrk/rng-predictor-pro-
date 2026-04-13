@@ -13,6 +13,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Chart.js for Phase 3 Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -23,6 +26,7 @@
             </div>
             <div class="header-actions">
                 <div class="user-info" id="user-info-text" style="display:none; font-size:0.8rem; margin-right: 15px; color: var(--accent-primary);"></div>
+                <button id="btn-backtest" class="icon-btn" title="Backtest & Data">📊</button>
                 <button id="btn-auth" class="icon-btn auth-btn">👤 Login</button>
                 <button id="btn-settings" class="icon-btn">⚙️</button>
             </div>
@@ -111,6 +115,13 @@
                         <div class="level-bars" id="level-bars">
                             <!-- 8 levels injected via JS -->
                         </div>
+                    </div>
+                </div>
+
+                <div class="card graph-card">
+                    <h2>SESSION PROFIT GRAPH</h2>
+                    <div style="position: relative; height:200px; width:100%">
+                        <canvas id="pnl-chart"></canvas>
                     </div>
                 </div>
 
@@ -232,10 +243,47 @@
         </div>
     </div>
 
+    <!-- Backtest Modal -->
+    <div class="modal" id="backtest-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>Data Collection & Backtest</h2>
+            
+            <div class="form-group">
+                <label>Export Current Session Data (JSON)</label>
+                <div style="display:flex; gap:10px;">
+                    <textarea id="export-data-json" readonly style="flex:1; height:60px; font-size:0.8rem;"></textarea>
+                    <button id="btn-copy-data" class="btn btn-outline">Copy</button>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Run Historical Backtest</label>
+                <p class="help-text">Input historical sequential data as a string (e.g. B,S,S,B,S or B S S B S)</p>
+                <textarea id="backtest-input" placeholder="B, S, B, ... " style="height: 60px;"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button id="btn-close-backtest" class="btn btn-outline">Close</button>
+                <button id="btn-run-backtest" class="btn btn-primary">Run Strategy</button>
+            </div>
+
+            <div id="backtest-results" style="display:none; margin-top:15px; padding:15px; background:#000; border:var(--border); border-radius: var(--border-radius);">
+                <h3 style="margin-bottom:10px; font-size:1rem; color:var(--accent-primary);">Backtest Results</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.9rem;">
+                    <div><strong>Rounds:</strong> <span id="bt-rounds">0</span></div>
+                    <div><strong>Net Profit:</strong> <span id="bt-pnl">0</span></div>
+                    <div><strong>Wins/Losses:</strong> <span id="bt-wl">0/0</span></div>
+                    <div><strong>Max Level Hit:</strong> <span id="bt-max-lvl">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="firebase-setup.js"></script>
     <script src="auth.js"></script>
     <script src="tracker.js"></script>
     <script src="api.js"></script>
     <script src="app.js"></script>
+    <script src="backtest.js"></script>
 </body>
 </html>

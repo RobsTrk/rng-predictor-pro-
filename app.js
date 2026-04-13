@@ -41,8 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPredictionRaw = 'WAIT'; 
     let currentPredictionTarget = null; // 'B', 'S' or null
     let timerInterval = null;
+    let pnlChart = null;
 
     // --- Init ---
+    initChart();
     initUI();
 
     // --- Events ---
@@ -125,6 +127,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function initChart() {
+        const ctx = document.getElementById('pnl-chart').getContext('2d');
+        pnlChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Start'],
+                datasets: [{
+                    label: 'Session PnL (₹)',
+                    data: [0],
+                    borderColor: '#00e5ff',
+                    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { 
+                        grid: { color: '#333' },
+                        ticks: { color: '#888' }
+                    }
+                }
+            }
+        });
+    }
+
     function initUI() {
         selectBalance.value = window.tracker.balanceType;
         renderMartingaleBars();
@@ -188,6 +222,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPos) pnlFill.style.background = 'var(--accent-green)';
         else if (isNeg) pnlFill.style.background = 'var(--accent-red)';
         else pnlFill.style.background = 'var(--text-muted)';
+
+        // Update Chart
+        if (pnlChart) {
+            pnlChart.data.labels = snap.pnlHistory.map((_, i) => i === 0 ? 'Start' : `R${i}`);
+            pnlChart.data.datasets[0].data = snap.pnlHistory;
+            
+            const chartColor = isPos ? '#00ff66' : isNeg ? '#ff3366' : '#00e5ff';
+            pnlChart.data.datasets[0].borderColor = chartColor;
+            pnlChart.data.datasets[0].backgroundColor = chartColor + '22';
+            pnlChart.update();
+        }
 
         // Martingale Bar Highlights
         renderMartingaleBars();
