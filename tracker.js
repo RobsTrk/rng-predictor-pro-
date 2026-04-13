@@ -29,6 +29,7 @@ class RiskTracker {
         this.stateHistory = [];
         this.sessionData = []; // Phase 3: Timestamps
         this.pnlHistory = [0]; // Phase 3: Chart
+        this.patternAccuracy = { altWins: 0, altTotal: 0, streakWins: 0, streakTotal: 0 }; // Phase 4
         this.saveState();
     }
 
@@ -61,7 +62,8 @@ class RiskTracker {
             consecutiveWins: this.consecutiveWins,
             recentLosses: this.recentLosses,
             sessionData: [...this.sessionData],
-            pnlHistory: [...this.pnlHistory]
+            pnlHistory: [...this.pnlHistory],
+            patternAccuracy: { ...this.patternAccuracy }
         };
     }
 
@@ -77,6 +79,7 @@ class RiskTracker {
         this.recentLosses = snap.recentLosses;
         if (snap.sessionData) this.sessionData = [...snap.sessionData];
         if (snap.pnlHistory) this.pnlHistory = [...snap.pnlHistory];
+        this.patternAccuracy = snap.patternAccuracy || { altWins: 0, altTotal: 0, streakWins: 0, streakTotal: 0 };
         this.saveState();
     }
 
@@ -93,6 +96,9 @@ class RiskTracker {
         this.stateHistory.push(this.snapshot());
         if (this.stateHistory.length > 20) this.stateHistory.shift();
 
+        // Evaluate the pattern type we were acting on BEFORE adding the new result
+        const prePattern = this.getPatternAnalysis();
+
         this.history.push(actualResult);
         if (this.history.length > 30) this.history.shift(); // Keep last 30
 
@@ -101,13 +107,23 @@ class RiskTracker {
         if (predictedTarget === 'B' || predictedTarget === 'S') {
             const amt = this.getCurrentBetAmount();
             betRecord.amount = amt;
+            
+            // Phase 4 Analytics Tracking
+            let type = prePattern.type;
+            if (type === 'ALTERNATING') this.patternAccuracy.altTotal++;
+            else if (type === 'STREAKY') this.patternAccuracy.streakTotal++;
+            
             if (actualResult === predictedTarget) {
                 betRecord.won = true;
-                this.pnl += (amt * 0.96); // Profit (approx 1.96x multiplier)
+                this.pnl += (amt * 0.96); // Profit
                 this.currentLevel = 1;
                 this.consecutiveWins++;
                 this.consecutiveLosses = 0;
                 this.recentLosses = 0;
+                
+                if (type === 'ALTERNATING') this.patternAccuracy.altWins++;
+                else if (type === 'STREAKY') this.patternAccuracy.streakWins++;
+                
             } else {
                 betRecord.won = false;
                 this.pnl -= amt; // Loss
@@ -198,7 +214,8 @@ class RiskTracker {
             history: this.history,
             sessionStartTime: this.sessionStartTime,
             sessionData: this.sessionData,
-            pnlHistory: this.pnlHistory
+            pnlHistory: this.pnlHistory,
+            patternAccuracy: this.patternAccuracy
         };
         localStorage.setItem('rng_pro_tracker_state', JSON.stringify(data));
     }
@@ -215,6 +232,7 @@ class RiskTracker {
                 this.sessionStartTime = data.sessionStartTime || Date.now();
                 this.sessionData = data.sessionData || [];
                 this.pnlHistory = data.pnlHistory || [0];
+                this.patternAccuracy = data.patternAccuracy || { altWins: 0, altTotal: 0, streakWins: 0, streakTotal: 0 };
             } catch(e) {
                 console.error("Error loading state", e);
             }

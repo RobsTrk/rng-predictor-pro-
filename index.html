@@ -126,7 +126,7 @@
                 </div>
 
                 <div class="card analysis-card">
-                    <h2>PATTERN ANALYSIS</h2>
+                    <h2>ADVANCED ANALYTICS</h2>
                     <div class="analysis-grid">
                         <div class="stat-box">
                             <div class="stat-value" id="stat-switch">0%</div>
@@ -139,6 +139,43 @@
                         <div class="stat-box">
                             <div class="stat-value" id="stat-streak">0</div>
                             <div class="stat-label">Max Streak</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phase 4 Tracking -->
+                    <div class="analysis-grid" style="margin-top: var(--spacing-sm);">
+                        <div class="stat-box" style="padding: 10px;">
+                            <div class="stat-value" id="acc-alt" style="font-size: 1rem;">-</div>
+                            <div class="stat-label" style="font-size: 0.6rem;">Alt Accuracy</div>
+                        </div>
+                        <div class="stat-box" style="padding: 10px;">
+                            <div class="stat-value" id="acc-str" style="font-size: 1rem;">-</div>
+                            <div class="stat-label" style="font-size: 0.6rem;">Strk Accuracy</div>
+                        </div>
+                        <div class="stat-box" style="padding: 10px;">
+                            <div class="stat-value" id="acc-tot" style="font-size: 1rem; color:var(--accent-primary);">-</div>
+                            <div class="stat-label" style="font-size: 0.6rem;">AI Accuracy</div>
+                        </div>
+                    </div>
+
+                    <!-- Stop Loss and Profit Target Bars -->
+                    <div style="margin-top: 15px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom: 4px;">
+                            <span>Stop Loss (-₹30)</span>
+                            <span id="sl-distance">Safe</span>
+                        </div>
+                        <div class="pnl-bar" style="height: 4px;">
+                            <div id="sl-fill" class="pnl-fill" style="width: 0%; background: var(--accent-red); transform-origin: left; transition: width 0.3s ease-out;"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom: 4px;">
+                            <span>Profit Limit (+₹30)</span>
+                            <span id="pt-distance">Active</span>
+                        </div>
+                        <div class="pnl-bar" style="height: 4px;">
+                            <div id="pt-fill" class="pnl-fill" style="width: 0%; background: var(--accent-green); transform-origin: left; transition: width 0.3s ease-out;"></div>
                         </div>
                     </div>
                 </div>

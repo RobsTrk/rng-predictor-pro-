@@ -243,6 +243,31 @@ document.addEventListener('DOMContentLoaded', () => {
         statType.textContent = analytics.type;
         statStreak.textContent = analytics.maxStreak;
 
+        // Phase 4 Analytics
+        const acc = snap.patternAccuracy || { altWins: 0, altTotal: 0, streakWins: 0, streakTotal: 0 };
+        const altPct = acc.altTotal > 0 ? ((acc.altWins / acc.altTotal) * 100).toFixed(0) : '-';
+        const strPct = acc.streakTotal > 0 ? ((acc.streakWins / acc.streakTotal) * 100).toFixed(0) : '-';
+        const totWins = acc.altWins + acc.streakWins;
+        const totTotal = acc.altTotal + acc.streakTotal;
+        const totPct = totTotal > 0 ? ((totWins / totTotal) * 100).toFixed(0) : '-';
+
+        document.getElementById('acc-alt').textContent = altPct === '-' ? '-' : altPct + '%';
+        document.getElementById('acc-str').textContent = strPct === '-' ? '-' : strPct + '%';
+        document.getElementById('acc-tot').textContent = totPct === '-' ? '-' : totPct + '%';
+
+        // Phase 4 Stop Loss & Profit Limit Bars
+        const STOP_LOSS = 30; // ₹30 limit
+        const PROFIT_TARGET = 30;
+        
+        let slPct = Math.min(100, Math.max(0, snap.pnl < 0 ? (Math.abs(snap.pnl) / STOP_LOSS) * 100 : 0));
+        let ptPct = Math.min(100, Math.max(0, snap.pnl > 0 ? (snap.pnl / PROFIT_TARGET) * 100 : 0));
+
+        document.getElementById('sl-fill').style.width = slPct + '%';
+        document.getElementById('sl-distance').textContent = slPct >= 100 ? 'HIT (-₹30)' : '₹' + (STOP_LOSS - Math.abs(snap.pnl < 0 ? snap.pnl : 0)).toFixed(0) + ' left';
+        
+        document.getElementById('pt-fill').style.width = ptPct + '%';
+        document.getElementById('pt-distance').textContent = ptPct >= 100 ? 'HIT (+₹30)' : '₹' + (PROFIT_TARGET - (snap.pnl > 0 ? snap.pnl : 0)).toFixed(0) + ' to go';
+
         // Phase Traffic Light
         lightRed.classList.remove('active');
         lightYellow.classList.remove('active');
@@ -326,6 +351,26 @@ document.addEventListener('DOMContentLoaded', () => {
             actionText.textContent = 'STOP PLAYING';
             actionBadge.textContent = `L${lvl}`;
             return;
+        }
+
+        // Phase 4 Auto Stop-Loss and Profit Logic
+        if (window.tracker.pnl <= -30) {
+            actionBar.classList.add('stop');
+            actionText.textContent = 'STOP-LOSS TRIGGERED!';
+            actionBadge.textContent = `L${lvl}`;
+            return;
+        }
+
+        if (window.tracker.pnl >= 30) {
+            actionBar.classList.add('stop');
+            actionBar.style.borderColor = 'var(--accent-green)';
+            actionText.textContent = 'PROFIT ACHIEVED!';
+            actionText.style.color = 'var(--accent-green)';
+            actionBadge.textContent = `L${lvl}`;
+            return;
+        } else {
+            actionBar.style.borderColor = ''; // reset potential modifications
+            actionText.style.color = '';
         }
 
         if (pred.prediction === 'B' || pred.prediction === 'S') {
