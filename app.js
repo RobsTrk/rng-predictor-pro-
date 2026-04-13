@@ -98,16 +98,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateUI(true); // render DOM synchronously without fresh prediction yet
         
-        // Await prediction
-        const pred = await window.api.getPrediction(window.tracker);
-        
-        currentPredictionTarget = null;
-        if (pred.prediction === 'B' || pred.prediction === 'S') {
-            currentPredictionTarget = pred.prediction;
-        }
+        // Check Daily Limit (Phase 2 Paywall logic)
+        if (!window.authManager || window.authManager.checkDailyLimit()) {
+            // Await prediction
+            const pred = await window.api.getPrediction(window.tracker);
+            
+            if (window.authManager && pred.prediction !== 'WAIT') {
+                window.authManager.incrementPrediction();
+            }
 
-        renderPrediction(pred);
-        renderActionLine(pred);
+            currentPredictionTarget = null;
+            if (pred.prediction === 'B' || pred.prediction === 'S') {
+                currentPredictionTarget = pred.prediction;
+            }
+
+            renderPrediction(pred);
+            renderActionLine(pred);
+        } else {
+            // Blocked by paywall
+            predictionMain.textContent = "LIMIT";
+            predictionMain.style.color = "var(--accent-red)";
+            predictionReason.textContent = "Prediction limit reached. Upgrade required.";
+            
+            actionBar.className = 'action-bar stop';
+            actionText.textContent = 'UPGRADE PLAN';
+        }
     }
 
     function initUI() {

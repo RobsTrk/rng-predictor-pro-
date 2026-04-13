@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -17,6 +22,8 @@
                 <h1>RNG PREDICTOR <span>PRO</span></h1>
             </div>
             <div class="header-actions">
+                <div class="user-info" id="user-info-text" style="display:none; font-size:0.8rem; margin-right: 15px; color: var(--accent-primary);"></div>
+                <button id="btn-auth" class="icon-btn auth-btn">👤 Login</button>
                 <button id="btn-settings" class="icon-btn">⚙️</button>
             </div>
         </header>
@@ -161,6 +168,72 @@
         </div>
     </div>
 
+    <!-- Auth Modal -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <h2 id="auth-title">Sign In</h2>
+            <div class="form-group" id="auth-error" style="color:var(--accent-red); font-size:0.8rem; display:none;"></div>
+            <div class="form-group">
+                <label for="auth-email">Email</label>
+                <input type="email" id="auth-email" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="auth-password">Password</label>
+                <input type="password" id="auth-password" placeholder="Enter password">
+            </div>
+            <div class="modal-actions">
+                <button id="btn-close-auth" class="btn btn-outline">Cancel</button>
+                <button id="btn-submit-auth" class="btn btn-primary">Login</button>
+            </div>
+            <div style="margin-top: 15px; text-align: center;">
+                <p id="auth-toggle-text" class="help-text">Don't have an account? <span id="auth-toggle-link" style="color:var(--accent-primary); cursor:pointer;">Sign Up</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paywall Modal -->
+    <div class="modal" id="paywall-modal">
+        <div class="modal-content paywall-content">
+            <h2>Upgrade Your Plan</h2>
+            <p class="help-text" style="margin-bottom:20px;">You have reached your prediction limit. Upgrade for more.</p>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>FREE</h3>
+                    <div class="price">₹0</div>
+                    <ul class="features">
+                        <li>10 Predictions/day</li>
+                        <li>Basic Tracking</li>
+                    </ul>
+                    <button class="btn btn-outline" disabled>Current</button>
+                </div>
+                <div class="pricing-card highlighted">
+                    <h3>PRO</h3>
+                    <div class="price">₹99<span>/mo</span></div>
+                    <ul class="features">
+                        <li>100 Predictions/day</li>
+                        <li>Pattern Analysis</li>
+                    </ul>
+                    <button id="btn-buy-pro" class="btn btn-primary">Subscribe</button>
+                </div>
+                <div class="pricing-card">
+                    <h3>PREMIUM</h3>
+                    <div class="price">₹199<span>/mo</span></div>
+                    <ul class="features">
+                        <li>Unlimited Usage</li>
+                        <li>Auto Stop-Loss</li>
+                    </ul>
+                    <button id="btn-buy-premium" class="btn btn-primary" style="background:#ffcc00; color:#000;">Subscribe</button>
+                </div>
+            </div>
+            <div class="modal-actions" style="justify-content:center; margin-top: 20px;">
+                <button id="btn-close-paywall" class="btn btn-outline">Not Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-setup.js"></script>
+    <script src="auth.js"></script>
     <script src="tracker.js"></script>
     <script src="api.js"></script>
     <script src="app.js"></script>
